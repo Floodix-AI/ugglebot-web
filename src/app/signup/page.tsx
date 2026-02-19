@@ -40,7 +40,7 @@ export default function SignupPage() {
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-amber-900">Skapa konto</h1>
-          <p className="text-gray-500 mt-2">Kom igang med Ugglebot</p>
+          <p className="text-gray-500 mt-2">Kom igang med Uggly</p>
         </div>
 
         <form onSubmit={handleSignup} className="space-y-4">

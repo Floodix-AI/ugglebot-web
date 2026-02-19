@@ -1,4 +1,4 @@
--- Ugglebot Web — Databasschema
+-- Uggly Web — Databasschema
 -- Kör detta i Supabase SQL Editor
 
 -- Profiler (utökar auth.users)
@@ -12,12 +12,12 @@ create table profiles (
   created_at timestamptz default now()
 );
 
--- Enheter (varje fysisk uggla)
+-- Enheter (varje fysisk Uggly)
 create table devices (
   id uuid primary key default gen_random_uuid(),
   pairing_code text unique not null,
   owner_id uuid references profiles(id) on delete set null,
-  device_name text default 'Min uggla',
+  device_name text default 'Min Uggly',
   api_key text unique default encode(gen_random_bytes(32), 'hex'),
   paired_at timestamptz,
   last_seen_at timestamptz,
@@ -25,7 +25,7 @@ create table devices (
   created_at timestamptz default now()
 );
 
--- Inställningar per uggla
+-- Inställningar per Uggly
 create table device_settings (
   device_id uuid primary key references devices(id) on delete cascade,
   child_name text default '',

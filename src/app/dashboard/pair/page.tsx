@@ -18,7 +18,7 @@ export default function PairPage() {
     const res = await fetch("/api/pair", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pairing_code: code.toUpperCase().trim(), device_name: name.trim() || "Min uggla" }),
+      body: JSON.stringify({ pairing_code: code.toUpperCase().trim(), device_name: name.trim() || "Min Uggly" }),
     });
 
     const data = await res.json();
@@ -34,11 +34,11 @@ export default function PairPage() {
 
   return (
     <div className="max-w-md mx-auto">
-      <h1 className="text-3xl font-bold text-amber-900 mb-6">Parkoppla uggla</h1>
+      <h1 className="text-3xl font-bold text-amber-900 mb-6">Parkoppla Uggly</h1>
 
       <div className="bg-white rounded-xl p-8 shadow-sm">
         <p className="text-gray-600 mb-6">
-          Ange parkopplingskoden som finns på kortet i ugglans förpackning.
+          Ange parkopplingskoden som finns på kortet i din Ugglys förpackning.
         </p>
 
         <form onSubmit={handlePair} className="space-y-4">
@@ -60,14 +60,14 @@ export default function PairPage() {
 
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Ge ugglan ett namn (valfritt)
+              Ge din Uggly ett namn (valfritt)
             </label>
             <input
               id="name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="T.ex. Emils uggla"
+              placeholder="T.ex. Emils Uggly"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             />
           </div>

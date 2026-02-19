@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   }
 
   if (device.owner_id) {
-    return NextResponse.json({ error: "Denna uggla är redan parkopplad till ett konto" }, { status: 409 });
+    return NextResponse.json({ error: "Denna Uggly är redan parkopplad till ett konto" }, { status: 409 });
   }
 
   // Parkoppla enheten till användaren
@@ -40,13 +40,13 @@ export async function POST(request: Request) {
     .from("devices")
     .update({
       owner_id: user.id,
-      device_name: device_name || "Min uggla",
+      device_name: device_name || "Min Uggly",
       paired_at: new Date().toISOString(),
     })
     .eq("id", device.id);
 
   if (updateError) {
-    return NextResponse.json({ error: "Kunde inte parkoppla ugglan" }, { status: 500 });
+    return NextResponse.json({ error: "Kunde inte parkoppla din Uggly" }, { status: 500 });
   }
 
   return NextResponse.json({ device_id: device.id });

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Ugglebot — AI-kompis for barn",
-  description: "En smart uggla som pratar med ditt barn. Hantera din Ugglebot har.",
+  title: "Uggly — AI-kompis for barn",
+  description: "En smart uggla som pratar med ditt barn. Hantera din Uggly har.",
 };
 
 export default function RootLayout({

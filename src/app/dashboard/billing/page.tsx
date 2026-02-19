@@ -70,7 +70,7 @@ export default function BillingPage() {
 
       {success && (
         <div className="bg-green-50 border border-green-200 text-green-800 rounded-lg p-4">
-          Prenumerationen är aktiverad! Dina ugglor är nu aktiva.
+          Prenumerationen är aktiverad! Dina Ugglys är nu aktiva.
         </div>
       )}
 
@@ -113,7 +113,7 @@ export default function BillingPage() {
           <div className="space-y-4">
             <div className="text-center py-4">
               <p className="text-4xl font-bold text-amber-900">99 kr<span className="text-lg font-normal text-gray-500">/mån</span></p>
-              <p className="text-gray-500 mt-2">Obegränsat antal ugglor. Avbryt när du vill.</p>
+              <p className="text-gray-500 mt-2">Obegränsat antal Ugglys. Avbryt när du vill.</p>
             </div>
             <ul className="text-sm text-gray-600 space-y-2">
               <li className="flex items-center gap-2">

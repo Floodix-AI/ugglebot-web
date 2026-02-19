@@ -24,11 +24,11 @@ export default async function DashboardLayout({
       <nav className="bg-amber-900 text-white px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Link href="/dashboard" className="text-xl font-bold">
-            Ugglebot
+            Uggly
           </Link>
           <div className="flex items-center gap-6">
             <Link href="/dashboard/pair" className="hover:text-amber-200 transition">
-              Parkoppla uggla
+              Parkoppla Uggly
             </Link>
             <Link href="/dashboard/billing" className="hover:text-amber-200 transition">
               Prenumeration

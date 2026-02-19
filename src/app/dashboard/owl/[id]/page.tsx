@@ -130,7 +130,7 @@ export default function OwlSettingsPage() {
   }
 
   if (!device || !settings) {
-    return <p className="text-gray-500">Ugglan hittades inte.</p>;
+    return <p className="text-gray-500">Din Uggly hittades inte.</p>;
   }
 
   return (
@@ -153,7 +153,7 @@ export default function OwlSettingsPage() {
 
         {/* Enhetens namn */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Ugglans namn</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Ugglys namn</label>
           <input
             type="text"
             value={device.device_name}

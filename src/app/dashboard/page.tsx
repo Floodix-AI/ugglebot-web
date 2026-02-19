@@ -18,25 +18,25 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-amber-900">Mina ugglor</h1>
+        <h1 className="text-3xl font-bold text-amber-900">Mina Ugglys</h1>
         <Link
           href="/dashboard/pair"
           className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition"
         >
-          + Parkoppla ny uggla
+          + Parkoppla ny Uggly
         </Link>
       </div>
 
       {(!devices || devices.length === 0) ? (
         <div className="bg-white rounded-xl p-12 text-center shadow-sm">
           <p className="text-gray-500 text-lg">
-            Du har inga ugglor parkopplade an.
+            Du har inga Ugglys parkopplade än.
           </p>
           <Link
             href="/dashboard/pair"
             className="inline-block mt-4 px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition"
           >
-            Parkoppla din forsta uggla
+            Parkoppla din första Uggly
           </Link>
         </div>
       ) : (

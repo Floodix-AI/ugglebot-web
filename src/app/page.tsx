@@ -5,13 +5,13 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
       <div className="max-w-2xl text-center space-y-8">
         <h1 className="text-6xl font-bold text-amber-900">
-          Ugglebot
+          Uggly
         </h1>
         <p className="text-2xl text-amber-700">
           En smart uggla som pratar med ditt barn
         </p>
         <p className="text-lg text-gray-600 max-w-lg mx-auto">
-          Ugglebot ar en AI-driven rostassistent for barn 4-10 ar.
+          Uggly ar en AI-driven rostassistent for barn 4-10 ar.
           Den svarar pa fragor, berattar sagor och hjalper med laxan
           — allt pa svenska med en vanlig uggleros.
         </p>
