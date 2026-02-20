@@ -35,6 +35,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Denna Uggly är redan parkopplad till ett konto" }, { status: 409 });
   }
 
+  // Säkerställ att profil finns (kan saknas om kontot skapades innan migrering)
+  await admin
+    .from("profiles")
+    .upsert(
+      { id: user.id, email: user.email || "" },
+      { onConflict: "id" }
+    );
+
   // Parkoppla enheten till användaren
   const { error: updateError } = await admin
     .from("devices")
@@ -46,6 +54,7 @@ export async function POST(request: Request) {
     .eq("id", device.id);
 
   if (updateError) {
+    console.error("Pairing error:", updateError);
     return NextResponse.json({ error: "Kunde inte parkoppla din Uggly" }, { status: 500 });
   }
 

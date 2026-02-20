@@ -49,8 +49,9 @@ export async function POST() {
       });
     }
 
+    console.error("Device registration error:", error);
     return NextResponse.json(
-      { error: "Kunde inte registrera enheten" },
+      { error: "Kunde inte registrera enheten", details: error.message },
       { status: 500 }
     );
   }
