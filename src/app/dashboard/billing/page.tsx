@@ -3,7 +3,22 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { CheckCircle, Info, Check, ExternalLink, Lock } from "lucide-react";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { UgglyOwl } from "@/components/icons/UgglyOwl";
+import { UgglyOwlAnimated } from "@/components/icons/UgglyOwlAnimated";
+
+const FEATURES = [
+  "AI-samtal anpassade efter barnets ålder",
+  "Fullständig föräldrakontroll",
+  "Kostnadsöversikt i realtid",
+  "Daglig budgetgräns",
+  "Obegränsat antal Ugglys",
+  "Avbryt när som helst",
+];
 
 export default function BillingPage() {
   const supabase = createClient();
@@ -17,7 +32,9 @@ export default function BillingPage() {
 
   useEffect(() => {
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return;
 
       const { data: profile } = await supabase
@@ -53,7 +70,21 @@ export default function BillingPage() {
   }
 
   if (loading) {
-    return <p className="text-gray-500">Laddar...</p>;
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <div className="relative">
+          <div
+            className="absolute inset-0 rounded-full animate-pulse-glow"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(232,168,23,0.3) 0%, transparent 70%)",
+            }}
+          />
+          <UgglyOwlAnimated size={80} />
+        </div>
+        <p className="text-night-400 text-sm">Laddar...</p>
+      </div>
+    );
   }
 
   const isActive = status === "active";
@@ -61,84 +92,117 @@ export default function BillingPage() {
 
   return (
     <div className="max-w-lg mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <Link href="/dashboard" className="text-amber-600 hover:text-amber-800">
-          &larr; Tillbaka
-        </Link>
-        <h1 className="text-3xl font-bold text-amber-900">Prenumeration</h1>
-      </div>
+      <PageHeader title="Prenumeration" backHref="/dashboard" />
 
       {success && (
-        <div className="bg-green-50 border border-green-200 text-green-800 rounded-lg p-4">
-          Prenumerationen är aktiverad! Dina Ugglys är nu aktiva.
+        <div className="bg-forest-50 border border-forest-400/30 text-forest-600 rounded-xl p-4 flex items-center gap-3">
+          <CheckCircle className="h-5 w-5 flex-shrink-0" />
+          <p className="text-sm">
+            Prenumerationen är aktiverad! Dina Ugglys är nu aktiva.
+          </p>
         </div>
       )}
 
       {canceled && (
-        <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-lg p-4">
-          Checkout avbruten. Du kan försöka igen när du vill.
+        <div className="bg-glow-50 border border-glow-300/30 text-glow-700 rounded-xl p-4 flex items-center gap-3">
+          <Info className="h-5 w-5 flex-shrink-0" />
+          <p className="text-sm">
+            Checkout avbruten. Du kan försöka igen när du vill.
+          </p>
         </div>
       )}
 
-      <div className="bg-white rounded-xl p-8 shadow-sm">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-amber-900">Status</h2>
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-            isActive
-              ? "bg-green-100 text-green-700"
-              : isPastDue
-                ? "bg-yellow-100 text-yellow-700"
-                : "bg-gray-100 text-gray-500"
-          }`}>
-            {isActive ? "Aktiv" : isPastDue ? "Betalning krävs" : "Ingen prenumeration"}
-          </span>
-        </div>
-
+      <Card padding="lg">
         {isActive || isPastDue ? (
-          <div className="space-y-4">
-            <p className="text-gray-600">
-              {isActive
-                ? "Din prenumeration är aktiv. Du kan hantera den via Stripe."
-                : "Din senaste betalning misslyckades. Uppdatera betalningsmetod."}
-            </p>
-            <button
+          <div className="space-y-6">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-night-50 flex items-center justify-center">
+                <UgglyOwl size={40} variant="color" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant={isActive ? "success" : "warning"}
+                >
+                  {isActive ? "Aktiv" : "Betalning krävs"}
+                </Badge>
+              </div>
+              <p className="text-night-600 text-sm">
+                {isActive
+                  ? "Din uggla är redo att prata! Du kan hantera prenumerationen via Stripe."
+                  : "Din senaste betalning misslyckades. Uppdatera betalningsmetod."}
+              </p>
+            </div>
+            <Button
               onClick={handlePortal}
-              disabled={actionLoading}
-              className="w-full py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition disabled:opacity-50 font-medium"
+              loading={actionLoading}
+              variant="secondary"
+              icon={ExternalLink}
+              className="w-full"
+              size="lg"
             >
               {actionLoading ? "Öppnar..." : "Hantera prenumeration"}
-            </button>
+            </Button>
           </div>
         ) : (
-          <div className="space-y-4">
-            <div className="text-center py-4">
-              <p className="text-4xl font-bold text-amber-900">99 kr<span className="text-lg font-normal text-gray-500">/mån</span></p>
-              <p className="text-gray-500 mt-2">Obegränsat antal Ugglys. Avbryt när du vill.</p>
+          <div className="space-y-8">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="relative">
+                <div
+                  className="absolute inset-0 rounded-full animate-pulse-glow"
+                  style={{
+                    background:
+                      "radial-gradient(circle, rgba(232,168,23,0.3) 0%, transparent 70%)",
+                  }}
+                />
+                <UgglyOwlAnimated size={80} />
+              </div>
+              <h2 className="font-heading text-2xl font-bold text-night-900">
+                Ge din uggla superkrafter!
+              </h2>
             </div>
-            <ul className="text-sm text-gray-600 space-y-2">
-              <li className="flex items-center gap-2">
-                <span className="text-green-600">&#10003;</span> AI-samtal anpassade efter barnets ålder
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-green-600">&#10003;</span> Fullständig föräldrakontroll
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-green-600">&#10003;</span> Kostnadsöversikt i realtid
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-green-600">&#10003;</span> Daglig budgetgräns
-              </li>
+
+            <div className="text-center">
+              <span className="font-heading font-extrabold text-5xl text-night-900">
+                99 kr
+              </span>
+              <span className="text-night-400 text-xl">/mån</span>
+              <p className="text-night-400 text-sm mt-2">
+                Obegränsat antal Ugglys. Avbryt när du vill.
+              </p>
+            </div>
+
+            <div className="gold-divider" />
+
+            <ul className="space-y-3">
+              {FEATURES.map((feature) => (
+                <li
+                  key={feature}
+                  className="flex items-center gap-3 text-night-600 text-sm"
+                >
+                  <span className="w-5 h-5 rounded-full bg-forest-50 flex items-center justify-center flex-shrink-0">
+                    <Check className="h-3 w-3 text-forest-500" />
+                  </span>
+                  {feature}
+                </li>
+              ))}
             </ul>
-            <button
+
+            <Button
               onClick={handleCheckout}
-              disabled={actionLoading}
-              className="w-full py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition disabled:opacity-50 font-medium"
+              loading={actionLoading}
+              className="w-full"
+              size="lg"
             >
               {actionLoading ? "Laddar..." : "Prenumerera nu"}
-            </button>
+            </Button>
+
+            <p className="text-center text-night-400 text-xs flex items-center justify-center gap-1.5">
+              <Lock className="h-3 w-3" />
+              Säkra betalningar via Stripe
+            </p>
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }

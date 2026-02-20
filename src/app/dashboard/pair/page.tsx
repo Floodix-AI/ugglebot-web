@@ -2,6 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Wifi, PenLine } from "lucide-react";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { NightSky } from "@/components/decorative/NightSky";
+import { SpeechBubble } from "@/components/decorative/SpeechBubble";
+import { UgglyOwlAnimated } from "@/components/icons/UgglyOwlAnimated";
 
 export default function PairPage() {
   const router = useRouter();
@@ -18,7 +26,10 @@ export default function PairPage() {
     const res = await fetch("/api/pair", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pairing_code: code.toUpperCase().trim(), device_name: name.trim() || "Min Uggly" }),
+      body: JSON.stringify({
+        pairing_code: code.toUpperCase().trim(),
+        device_name: name.trim() || "Min Uggly",
+      }),
     });
 
     const data = await res.json();
@@ -34,57 +45,73 @@ export default function PairPage() {
 
   return (
     <div className="max-w-md mx-auto">
-      <h1 className="text-3xl font-bold text-amber-900 mb-6">Parkoppla Uggly</h1>
+      <PageHeader title="Väck din uggla till liv" backHref="/dashboard" />
 
-      <div className="bg-white rounded-xl p-8 shadow-sm">
-        <p className="text-gray-600 mb-6">
+      {/* Night scene with owl */}
+      <div className="relative bg-gradient-to-b from-night-950 to-night-800 rounded-2xl overflow-hidden mb-6 h-52 flex flex-col items-center justify-center">
+        <NightSky density="sparse" />
+        <div className="relative z-10 flex flex-col items-center">
+          <SpeechBubble direction="bottom" className="mb-3">
+            <span className="text-sm">
+              {loading ? "Parkopplar..." : "Hej! Jag väntar på att träffa dig!"}
+            </span>
+          </SpeechBubble>
+          <div className="relative">
+            <div
+              className="absolute -inset-4 rounded-full animate-pulse-glow"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(232,168,23,0.3) 0%, transparent 70%)",
+              }}
+            />
+            <UgglyOwlAnimated size={120} />
+          </div>
+        </div>
+      </div>
+
+      <Card padding="lg">
+        <p className="text-night-600 text-sm text-center mb-8">
           Ange parkopplingskoden som finns på kortet i din Ugglys förpackning.
         </p>
 
-        <form onSubmit={handlePair} className="space-y-4">
+        <form onSubmit={handlePair} className="space-y-5">
           <div>
-            <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-night-700 font-heading mb-1.5">
               Parkopplingskod
             </label>
             <input
-              id="code"
               type="text"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder="T.ex. UGGLA1"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-mono tracking-widest uppercase focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+              className="w-full px-4 py-3 bg-night-50 border-2 border-night-200 rounded-xl text-center text-2xl font-mono tracking-[0.3em] uppercase text-night-900 placeholder:text-night-300 focus:outline-none focus:ring-2 focus:ring-glow-500/50 focus:border-glow-500 focus:bg-white transition-all"
               maxLength={10}
               required
             />
           </div>
 
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Ge din Uggly ett namn (valfritt)
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="T.ex. Emils Uggly"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-            />
-          </div>
+          <Input
+            type="text"
+            label="Ge din Uggly ett namn (valfritt)"
+            icon={PenLine}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="T.ex. Emils Uggly"
+            error={error || undefined}
+          />
 
-          {error && (
-            <p className="text-red-600 text-sm">{error}</p>
-          )}
-
-          <button
+          <Button
             type="submit"
+            loading={loading}
             disabled={loading || !code.trim()}
-            className="w-full py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition disabled:opacity-50 font-medium"
+            icon={Wifi}
+            className="w-full"
+            size="lg"
           >
             {loading ? "Parkopplar..." : "Parkoppla"}
-          </button>
+          </Button>
         </form>
-      </div>
+      </Card>
     </div>
   );
 }

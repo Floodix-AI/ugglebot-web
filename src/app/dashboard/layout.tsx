@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { LogoutButton } from "@/components/LogoutButton";
+import { UgglyLogo } from "@/components/brand/UgglyLogo";
+import { UserMenu } from "@/components/UserMenu";
+import { DashboardNav } from "./DashboardNav";
 
 export default async function DashboardLayout({
   children,
@@ -9,7 +11,9 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
 
@@ -19,30 +23,34 @@ export default async function DashboardLayout({
     .eq("id", user.id)
     .single();
 
+  const displayName =
+    profile?.name || user.email?.split("@")[0] || "";
+
   return (
     <div className="min-h-screen">
-      <nav className="bg-amber-900 text-white px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link href="/dashboard" className="text-xl font-bold">
-            Uggly
-          </Link>
-          <div className="flex items-center gap-6">
-            <Link href="/dashboard/pair" className="hover:text-amber-200 transition">
-              Parkoppla Uggly
+      <div className="sticky top-0 z-50 px-4 pt-4 pb-2">
+        <nav className="max-w-5xl mx-auto bg-night-950/85 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg shadow-night-950/30 text-white ring-1 ring-inset ring-white/[0.05]">
+          <div className="flex items-center justify-between px-5 h-14">
+            <Link href="/dashboard" className="flex-shrink-0">
+              <UgglyLogo size="sm" variant="color" onDark />
             </Link>
-            <Link href="/dashboard/billing" className="hover:text-amber-200 transition">
-              Prenumeration
-            </Link>
-            <span className="text-amber-200 text-sm">
-              {profile?.name || user.email}
-            </span>
-            <LogoutButton />
+
+            <div className="h-5 w-px bg-white/10" />
+
+            <div className="flex items-center gap-1">
+              <DashboardNav />
+            </div>
+
+            <div className="h-5 w-px bg-white/10" />
+
+            <UserMenu
+              name={displayName}
+              email={user.email || ""}
+            />
           </div>
-        </div>
-      </nav>
-      <main className="max-w-5xl mx-auto p-6">
-        {children}
-      </main>
+        </nav>
+      </div>
+      <main className="max-w-6xl mx-auto px-6 py-8">{children}</main>
     </div>
   );
 }

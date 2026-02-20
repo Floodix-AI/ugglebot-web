@@ -3,7 +3,23 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
+import {
+  Check,
+  Smartphone,
+  TrendingUp,
+  PenLine,
+  User,
+  Volume2,
+} from "lucide-react";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
+import { Slider } from "@/components/ui/Slider";
+import { UgglyOwl } from "@/components/icons/UgglyOwl";
+import { UgglyOwlAnimated } from "@/components/icons/UgglyOwlAnimated";
 
 interface DeviceSettings {
   child_name: string;
@@ -34,10 +50,10 @@ interface UsageLog {
 }
 
 const VOICES = [
-  { id: "zrHiDhphv9ZnVXBqCLjz", name: "Mimi (standard)" },
-  { id: "EXAVITQu4vr4xnSDxMaL", name: "Sarah" },
-  { id: "pFZP5JQG7iQjIQuC4Bku", name: "Lily" },
-  { id: "onwK4e9ZLuTAKqWW03F9", name: "Daniel" },
+  { value: "zrHiDhphv9ZnVXBqCLjz", label: "Mimi (standard)" },
+  { value: "EXAVITQu4vr4xnSDxMaL", label: "Sarah" },
+  { value: "pFZP5JQG7iQjIQuC4Bku", label: "Lily" },
+  { value: "onwK4e9ZLuTAKqWW03F9", label: "Daniel" },
 ];
 
 export default function OwlSettingsPage() {
@@ -88,7 +104,9 @@ export default function OwlSettingsPage() {
 
       const { data: logs } = await supabase
         .from("usage_logs")
-        .select("date, total_sek, interactions, whisper_cost, claude_cost, elevenlabs_cost")
+        .select(
+          "date, total_sek, interactions, whisper_cost, claude_cost, elevenlabs_cost"
+        )
         .eq("device_id", deviceId)
         .order("date", { ascending: false })
         .limit(30);
@@ -126,182 +144,250 @@ export default function OwlSettingsPage() {
   }
 
   if (loading) {
-    return <p className="text-gray-500">Laddar...</p>;
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <div className="relative">
+          <div
+            className="absolute inset-0 rounded-full animate-pulse-glow"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(232,168,23,0.3) 0%, transparent 70%)",
+            }}
+          />
+          <UgglyOwlAnimated size={80} />
+        </div>
+        <p className="text-night-400 text-sm">Laddar din uggla...</p>
+      </div>
+    );
   }
 
   if (!device || !settings) {
-    return <p className="text-gray-500">Din Uggly hittades inte.</p>;
+    return (
+      <p className="text-night-400 text-center py-20">
+        Din Uggly hittades inte.
+      </p>
+    );
   }
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center gap-4">
-        <Link href="/dashboard" className="text-amber-600 hover:text-amber-800">
-          &larr; Tillbaka
-        </Link>
-        <h1 className="text-3xl font-bold text-amber-900">{device.device_name}</h1>
-        <span className={`text-xs px-2 py-1 rounded-full ${
-          device.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
-        }`}>
-          {device.is_active ? "Aktiv" : "Inaktiv"}
-        </span>
-      </div>
-
-      {/* Inställningsformulär */}
-      <form onSubmit={handleSave} className="bg-white rounded-xl p-6 shadow-sm space-y-6">
-        <h2 className="text-xl font-semibold text-amber-900">Inställningar</h2>
-
-        {/* Enhetens namn */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Ugglys namn</label>
-          <input
-            type="text"
-            value={device.device_name}
-            onChange={(e) => setDevice({ ...device, device_name: e.target.value })}
-            onBlur={(e) => handleDeviceNameSave(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-          />
-        </div>
-
-        {/* Barnets namn */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Barnets namn</label>
-          <input
-            type="text"
-            value={settings.child_name}
-            onChange={(e) => setSettings({ ...settings, child_name: e.target.value })}
-            placeholder="T.ex. Emil"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-          />
-        </div>
-
-        {/* Barnets ålder */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Barnets ålder: <span className="font-bold text-amber-700">{settings.child_age} år</span>
-          </label>
-          <input
-            type="range"
-            min={4}
-            max={10}
-            value={settings.child_age}
-            onChange={(e) => setSettings({ ...settings, child_age: parseInt(e.target.value) })}
-            className="w-full accent-amber-600"
-          />
-          <div className="flex justify-between text-xs text-gray-400 mt-1">
-            <span>4 år</span>
-            <span>10 år</span>
+      <PageHeader
+        backHref="/dashboard"
+        title={device.device_name}
+        badge={
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-night-50 flex items-center justify-center">
+              <UgglyOwl size={22} variant="color" />
+            </div>
+            <Badge variant={device.is_active ? "success" : "neutral"}>
+              {device.is_active ? "Aktiv" : "Inaktiv"}
+            </Badge>
           </div>
-        </div>
+        }
+      />
 
-        {/* Röst */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Röst</label>
-          <select
-            value={settings.voice_id}
-            onChange={(e) => setSettings({ ...settings, voice_id: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-          >
-            {VOICES.map((v) => (
-              <option key={v.id} value={v.id}>{v.name}</option>
-            ))}
-          </select>
-        </div>
+      {/* Settings Form */}
+      <form onSubmit={handleSave}>
+        <Card padding="lg">
+          <div className="space-y-8">
+            <h2 className="font-heading text-xl font-bold text-night-900">
+              Ugglys personlighet
+            </h2>
 
-        {/* Daglig budget */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Daglig budget: <span className="font-bold text-amber-700">{settings.daily_budget_sek} kr</span>
-          </label>
-          <input
-            type="range"
-            min={1}
-            max={20}
-            step={0.5}
-            value={settings.daily_budget_sek}
-            onChange={(e) => setSettings({ ...settings, daily_budget_sek: parseFloat(e.target.value) })}
-            className="w-full accent-amber-600"
-          />
-          <div className="flex justify-between text-xs text-gray-400 mt-1">
-            <span>1 kr</span>
-            <span>20 kr</span>
+            {/* Device name */}
+            <Input
+              label="Ugglys namn"
+              icon={PenLine}
+              value={device.device_name}
+              onChange={(e) =>
+                setDevice({ ...device, device_name: e.target.value })
+              }
+              onBlur={(e) => handleDeviceNameSave(e.target.value)}
+            />
+
+            {/* Voice */}
+            <Select
+              label="Röst"
+              icon={Volume2}
+              options={VOICES}
+              value={settings.voice_id}
+              onChange={(e) =>
+                setSettings({ ...settings, voice_id: e.target.value })
+              }
+            />
+
+            {/* Child profile section */}
+            <div className="space-y-6">
+              <div className="gold-divider" />
+              <h3 className="text-sm font-semibold text-night-500 uppercase tracking-wider">
+                Vem pratar ugglan med?
+              </h3>
+
+              <Input
+                label="Barnets namn"
+                icon={User}
+                value={settings.child_name}
+                onChange={(e) =>
+                  setSettings({ ...settings, child_name: e.target.value })
+                }
+                placeholder="T.ex. Emil"
+              />
+
+              <Slider
+                label="Barnets ålder"
+                value={settings.child_age}
+                onChange={(v) => setSettings({ ...settings, child_age: v })}
+                min={4}
+                max={10}
+                unit="år"
+              />
+            </div>
+
+            {/* Limits section */}
+            <div className="space-y-6">
+              <div className="gold-divider" />
+              <h3 className="text-sm font-semibold text-night-500 uppercase tracking-wider">
+                Dagliga gränser
+              </h3>
+
+              <Slider
+                label="Daglig budget"
+                value={settings.daily_budget_sek}
+                onChange={(v) =>
+                  setSettings({ ...settings, daily_budget_sek: v })
+                }
+                min={1}
+                max={20}
+                step={0.5}
+                unit="kr"
+              />
+
+              <Slider
+                label="Max samtalslängd"
+                value={settings.session_max_minutes}
+                onChange={(v) =>
+                  setSettings({ ...settings, session_max_minutes: v })
+                }
+                min={5}
+                max={60}
+                step={5}
+                unit="min"
+              />
+            </div>
+
+            {/* Save */}
+            <div className="flex items-center gap-4 pt-2">
+              <Button type="submit" loading={saving} icon={Check}>
+                {saving ? "Sparar..." : "Spara inställningar"}
+              </Button>
+              {saved && (
+                <span className="text-sm text-green-600 flex items-center gap-1">
+                  <Check className="h-4 w-4" />
+                  Sparat!
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-
-        {/* Session-timeout */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Max samtalslängd: <span className="font-bold text-amber-700">{settings.session_max_minutes} min</span>
-          </label>
-          <input
-            type="range"
-            min={5}
-            max={60}
-            step={5}
-            value={settings.session_max_minutes}
-            onChange={(e) => setSettings({ ...settings, session_max_minutes: parseInt(e.target.value) })}
-            className="w-full accent-amber-600"
-          />
-        </div>
-
-        {/* Spara-knapp */}
-        <div className="flex items-center gap-4">
-          <button
-            type="submit"
-            disabled={saving}
-            className="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition disabled:opacity-50 font-medium"
-          >
-            {saving ? "Sparar..." : "Spara inställningar"}
-          </button>
-          {saved && <span className="text-green-600 text-sm">Sparat!</span>}
-        </div>
+        </Card>
       </form>
 
-      {/* Kostnadshistorik */}
-      <div className="bg-white rounded-xl p-6 shadow-sm">
-        <h2 className="text-xl font-semibold text-amber-900 mb-4">Kostnadshistorik</h2>
+      {/* Usage History */}
+      <Card padding="lg">
+        <div className="flex items-center gap-2 mb-6">
+          <TrendingUp className="h-5 w-5 text-night-400" />
+          <h2 className="font-heading text-xl font-bold text-night-900">
+            Kostnadshistorik
+          </h2>
+        </div>
 
         {usage.length === 0 ? (
-          <p className="text-gray-500">Inga samtal registrerade ännu.</p>
+          <p className="text-night-400 text-sm">
+            Inga samtal registrerade ännu.
+          </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200 text-left text-gray-500">
-                  <th className="pb-2 pr-4">Datum</th>
-                  <th className="pb-2 pr-4">Samtal</th>
-                  <th className="pb-2 pr-4">Whisper</th>
-                  <th className="pb-2 pr-4">Claude</th>
-                  <th className="pb-2 pr-4">ElevenLabs</th>
-                  <th className="pb-2">Totalt</th>
+                <tr className="text-left">
+                  <th className="pb-3 pr-4 text-xs font-medium text-night-500 uppercase tracking-wider">
+                    Datum
+                  </th>
+                  <th className="pb-3 pr-4 text-xs font-medium text-night-500 uppercase tracking-wider">
+                    Samtal
+                  </th>
+                  <th className="pb-3 pr-4 text-xs font-medium text-night-500 uppercase tracking-wider">
+                    Whisper
+                  </th>
+                  <th className="pb-3 pr-4 text-xs font-medium text-night-500 uppercase tracking-wider">
+                    Claude
+                  </th>
+                  <th className="pb-3 pr-4 text-xs font-medium text-night-500 uppercase tracking-wider">
+                    ElevenLabs
+                  </th>
+                  <th className="pb-3 text-xs font-medium text-night-500 uppercase tracking-wider">
+                    Totalt
+                  </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-night-50">
                 {usage.map((log) => (
-                  <tr key={log.date} className="border-b border-gray-50">
-                    <td className="py-2 pr-4">{log.date}</td>
-                    <td className="py-2 pr-4">{log.interactions}</td>
-                    <td className="py-2 pr-4">{log.whisper_cost.toFixed(2)} kr</td>
-                    <td className="py-2 pr-4">{log.claude_cost.toFixed(2)} kr</td>
-                    <td className="py-2 pr-4">{log.elevenlabs_cost.toFixed(2)} kr</td>
-                    <td className="py-2 font-medium">{log.total_sek.toFixed(2)} kr</td>
+                  <tr
+                    key={log.date}
+                    className="hover:bg-night-50/50 transition-colors"
+                  >
+                    <td className="py-3 pr-4 text-night-700">{log.date}</td>
+                    <td className="py-3 pr-4 text-night-600">
+                      {log.interactions}
+                    </td>
+                    <td className="py-3 pr-4 text-night-400">
+                      {log.whisper_cost.toFixed(2)} kr
+                    </td>
+                    <td className="py-3 pr-4 text-night-400">
+                      {log.claude_cost.toFixed(2)} kr
+                    </td>
+                    <td className="py-3 pr-4 text-night-400">
+                      {log.elevenlabs_cost.toFixed(2)} kr
+                    </td>
+                    <td className="py-3 font-semibold text-night-900">
+                      {log.total_sek.toFixed(2)} kr
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
-      </div>
+      </Card>
 
-      {/* Enhetsinformation */}
-      <div className="bg-white rounded-xl p-6 shadow-sm text-sm text-gray-500">
-        <h2 className="text-xl font-semibold text-amber-900 mb-4">Enhetsinformation</h2>
-        <div className="space-y-1">
-          <p>Enhet-ID: <span className="font-mono">{device.id}</span></p>
-          {device.paired_at && <p>Parkopplad: {new Date(device.paired_at).toLocaleString("sv-SE")}</p>}
-          {device.last_seen_at && <p>Senast online: {new Date(device.last_seen_at).toLocaleString("sv-SE")}</p>}
+      {/* Device Information */}
+      <Card padding="md">
+        <div className="flex items-center gap-2 mb-4">
+          <Smartphone className="h-5 w-5 text-night-400" />
+          <h2 className="font-heading text-lg font-bold text-night-900">
+            Enhetsinformation
+          </h2>
         </div>
-      </div>
+        <div className="space-y-2 text-sm text-night-400">
+          <p>
+            Enhet-ID:{" "}
+            <span className="font-mono text-xs bg-night-100 px-2 py-0.5 rounded text-night-600">
+              {device.id}
+            </span>
+          </p>
+          {device.paired_at && (
+            <p>
+              Parkopplad:{" "}
+              {new Date(device.paired_at).toLocaleString("sv-SE")}
+            </p>
+          )}
+          {device.last_seen_at && (
+            <p>
+              Senast online:{" "}
+              {new Date(device.last_seen_at).toLocaleString("sv-SE")}
+            </p>
+          )}
+        </div>
+      </Card>
     </div>
   );
 }

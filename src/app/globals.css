@@ -1,26 +1,195 @@
 @import "tailwindcss";
 
+/* ======================================
+   Uggly Design System — "Nocturnal Wisdom"
+   ====================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Night palette (primary — deep violet-indigo) */
+  --color-night-950: #0f0d1a;
+  --color-night-900: #1a1726;
+  --color-night-800: #2a2540;
+  --color-night-700: #3d3660;
+  --color-night-600: #524b80;
+  --color-night-500: #6b62a0;
+  --color-night-400: #8b82c0;
+  --color-night-300: #a9a2d4;
+  --color-night-200: #cdc8e8;
+  --color-night-100: #e8e5f5;
+  --color-night-50: #f4f2fa;
+
+  /* Glow palette (accent — warm gold, owl eyes) */
+  --color-glow-700: #a67608;
+  --color-glow-600: #c98f0a;
+  --color-glow-500: #e8a817;
+  --color-glow-400: #f0be3a;
+  --color-glow-300: #f5d36e;
+  --color-glow-200: #f9e4a0;
+  --color-glow-100: #fdf3d7;
+  --color-glow-50: #fef9eb;
+
+  /* Forest palette (secondary — teal-green) */
+  --color-forest-600: #1f7a6f;
+  --color-forest-500: #2a9d8f;
+  --color-forest-400: #40b4a6;
+  --color-forest-100: #d4f0ec;
+  --color-forest-50: #ecf8f6;
+
+  /* Semantic */
+  --color-success: #22c55e;
+  --color-success-light: #dcfce7;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-error: #ef4444;
+  --color-error-light: #fee2e2;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-night-950: var(--color-night-950);
+  --color-night-900: var(--color-night-900);
+  --color-night-800: var(--color-night-800);
+  --color-night-700: var(--color-night-700);
+  --color-night-600: var(--color-night-600);
+  --color-night-500: var(--color-night-500);
+  --color-night-400: var(--color-night-400);
+  --color-night-300: var(--color-night-300);
+  --color-night-200: var(--color-night-200);
+  --color-night-100: var(--color-night-100);
+  --color-night-50: var(--color-night-50);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-glow-700: var(--color-glow-700);
+  --color-glow-600: var(--color-glow-600);
+  --color-glow-500: var(--color-glow-500);
+  --color-glow-400: var(--color-glow-400);
+  --color-glow-300: var(--color-glow-300);
+  --color-glow-200: var(--color-glow-200);
+  --color-glow-100: var(--color-glow-100);
+  --color-glow-50: var(--color-glow-50);
+
+  --color-forest-600: var(--color-forest-600);
+  --color-forest-500: var(--color-forest-500);
+  --color-forest-400: var(--color-forest-400);
+  --color-forest-100: var(--color-forest-100);
+  --color-forest-50: var(--color-forest-50);
+
+  --color-success: var(--color-success);
+  --color-success-light: var(--color-success-light);
+  --color-warning: var(--color-warning);
+  --color-warning-light: var(--color-warning-light);
+  --color-error: var(--color-error);
+  --color-error-light: var(--color-error-light);
+
+  --font-heading: var(--font-nunito), 'Nunito', sans-serif;
+  --font-body: var(--font-inter), 'Inter', sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  background: var(--color-night-50);
+  color: var(--color-night-900);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--color-night-50); }
+::-webkit-scrollbar-thumb { background: var(--color-night-200); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-night-300); }
+
+/* Custom range slider */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--color-night-100);
+  border-radius: 9999px;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--color-glow-500);
+  border-radius: 9999px;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--color-glow-500);
+  border-radius: 9999px;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+/* ======================================
+   Landing Page Animations
+   ====================================== */
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.4); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes blink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  93%, 97% { transform: scaleY(0.08); }
+}
+
+@keyframes drift-slow {
+  0% { transform: translateX(-20%); }
+  100% { transform: translateX(120%); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.12; transform: scale(1); }
+  50% { opacity: 0.22; transform: scale(1.05); }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-twinkle { animation: twinkle 3s ease-in-out infinite; }
+.animate-float { animation: float 4s ease-in-out infinite; }
+.animate-blink { animation: blink 4s ease-in-out infinite; }
+.animate-drift { animation: drift-slow 45s linear infinite; }
+.animate-pulse-glow { animation: pulse-glow 5s ease-in-out infinite; }
+.animate-fade-in-up { animation: fade-in-up 0.6s ease-out both; }
+
+/* Dashboard utility classes */
+.glow-line {
+  background: linear-gradient(to right, transparent, var(--color-glow-500), transparent);
+  opacity: 0.3;
+  height: 1px;
+}
+
+.gold-divider {
+  background: linear-gradient(to right, transparent, var(--color-glow-300), transparent);
+  height: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-twinkle,
+  .animate-float,
+  .animate-blink,
+  .animate-drift,
+  .animate-pulse-glow,
+  .animate-fade-in-up {
+    animation: none;
+  }
 }

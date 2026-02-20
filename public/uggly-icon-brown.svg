@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B6914;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6B4F12;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="headGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#9B7620;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7A5B15;stop-opacity:1" />
+    </linearGradient>
+    
+    <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#FFD93D;stop-opacity:1" />
+      <stop offset="60%" style="stop-color:#F5A623;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E8941A;stop-opacity:1" />
+    </radialGradient>
+
+    <filter id="shadow" x="-10%" y="-5%" width="120%" height="115%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#3E2C0A" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <g transform="translate(200, 180)" filter="url(#shadow)">
+    <!-- Owl body -->
+    <ellipse cx="0" cy="30" rx="120" ry="130" fill="url(#bodyGrad)" />
+    
+    <!-- Belly - lighter warm patch -->
+    <ellipse cx="0" cy="70" rx="70" ry="75" fill="#C4A24E" opacity="0.45" />
+    
+    <!-- Head -->
+    <ellipse cx="0" cy="-50" rx="108" ry="92" fill="url(#headGrad)" />
+    
+    <!-- Feather texture on head - subtle arcs -->
+    <path d="M -50 -80 Q -30 -95 -10 -80" stroke="#6B4F12" stroke-width="1.5" fill="none" opacity="0.3" />
+    <path d="M 10 -85 Q 30 -100 50 -85" stroke="#6B4F12" stroke-width="1.5" fill="none" opacity="0.3" />
+    <path d="M -30 -70 Q -10 -82 10 -70" stroke="#6B4F12" stroke-width="1.5" fill="none" opacity="0.25" />
+    
+    <!-- Ear tufts left -->
+    <path d="M -75 -110 Q -90 -165 -45 -120 Q -70 -140 -60 -100 Z" fill="#7A5B15" />
+    <!-- Ear tufts right -->
+    <path d="M 75 -110 Q 90 -165 45 -120 Q 70 -140 60 -100 Z" fill="#7A5B15" />
+    
+    <!-- Eye rings - darker brown circles around eyes -->
+    <circle cx="-38" cy="-50" r="42" fill="#5C4410" opacity="0.4" />
+    <circle cx="38" cy="-50" r="42" fill="#5C4410" opacity="0.4" />
+    
+    <!-- Eyes white -->
+    <circle cx="-38" cy="-50" r="38" fill="#FFF8EC" />
+    <circle cx="38" cy="-50" r="38" fill="#FFF8EC" />
+    
+    <!-- Iris -->
+    <circle cx="-34" cy="-53" r="24" fill="url(#eyeGlow)" />
+    <circle cx="42" cy="-53" r="24" fill="url(#eyeGlow)" />
+    
+    <!-- Pupils -->
+    <circle cx="-30" cy="-57" r="12" fill="#2A1F08" />
+    <circle cx="46" cy="-57" r="12" fill="#2A1F08" />
+    
+    <!-- Sparkle -->
+    <circle cx="-25" cy="-61" r="5" fill="white" opacity="0.85" />
+    <circle cx="51" cy="-61" r="5" fill="white" opacity="0.85" />
+    
+    <!-- Small sparkle -->
+    <circle cx="-34" cy="-50" r="2.5" fill="white" opacity="0.5" />
+    <circle cx="40" cy="-50" r="2.5" fill="white" opacity="0.5" />
+    
+    <!-- Beak -->
+    <path d="M -10 -25 L 0 -8 L 10 -25 Z" fill="#E8941A" />
+    
+    <!-- Smile -->
+    <path d="M -12 -5 Q 0 5 12 -5" stroke="#5C4410" stroke-width="2.5" fill="none" stroke-linecap="round" />
+    
+    <!-- Wings - darker brown -->
+    <path d="M -110 -10 Q -140 30 -120 80 Q -108 50 -95 65 Q -115 25 -100 -5 Z" fill="#5C4410" />
+    <path d="M 110 -10 Q 140 30 120 80 Q 108 50 95 65 Q 115 25 100 -5 Z" fill="#5C4410" />
+    
+    <!-- Wing feather lines -->
+    <path d="M -118 20 Q -108 35 -105 55" stroke="#4A3610" stroke-width="1.5" fill="none" opacity="0.3" />
+    <path d="M 118 20 Q 108 35 105 55" stroke="#4A3610" stroke-width="1.5" fill="none" opacity="0.3" />
+    
+    <!-- Feet -->
+    <ellipse cx="-30" cy="158" rx="25" ry="10" fill="#E8941A" />
+    <ellipse cx="30" cy="158" rx="25" ry="10" fill="#E8941A" />
+    
+    <!-- Toe lines -->
+    <line x1="-42" y1="158" x2="-38" y2="158" stroke="#C47A12" stroke-width="1.5" />
+    <line x1="-30" y1="158" x2="-30" y2="163" stroke="#C47A12" stroke-width="1.5" />
+    <line x1="-18" y1="158" x2="-22" y2="158" stroke="#C47A12" stroke-width="1.5" />
+    <line x1="18" y1="158" x2="22" y2="158" stroke="#C47A12" stroke-width="1.5" />
+    <line x1="30" y1="158" x2="30" y2="163" stroke="#C47A12" stroke-width="1.5" />
+    <line x1="42" y1="158" x2="38" y2="158" stroke="#C47A12" stroke-width="1.5" />
+  </g>
+</svg>
