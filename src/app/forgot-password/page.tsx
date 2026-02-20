@@ -1,10 +1,9 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
-import { Mail, Lock } from "lucide-react";
+import { Mail, ArrowLeft } from "lucide-react";
 import { UgglyLogo } from "@/components/brand/UgglyLogo";
 import { UgglyOwlAnimated } from "@/components/icons/UgglyOwlAnimated";
 import { NightSky } from "@/components/decorative/NightSky";
@@ -13,29 +12,28 @@ import { MoonIllustration } from "@/components/decorative/MoonIllustration";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [sent, setSent] = useState(false);
   const supabase = createClient();
 
-  async function handleLogin(e: React.FormEvent) {
+  async function handleReset(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback?next=/auth/reset-password`,
     });
 
     if (error) {
-      setError("Fel e-post eller lösenord");
+      setError("Kunde inte skicka återställningslänk. Försök igen.");
       setLoading(false);
     } else {
-      router.push("/dashboard");
+      setSent(true);
+      setLoading(false);
     }
   }
 
@@ -50,7 +48,7 @@ export default function LoginPage() {
 
         <div className="relative z-10 flex flex-col items-center">
           <SpeechBubble direction="bottom" className="mb-3">
-            <span className="text-sm">Hej! Kul att se dig igen!</span>
+            <span className="text-sm">Ingen fara, jag hjälper dig!</span>
           </SpeechBubble>
           <div style={{ filter: 'drop-shadow(0 0 40px rgba(232,168,23,0.25))' }}>
             <UgglyOwlAnimated size={180} />
@@ -67,7 +65,7 @@ export default function LoginPage() {
         <NightSky density="sparse" />
         <div className="relative z-10 flex flex-col items-center">
           <SpeechBubble direction="bottom" className="mb-2">
-            <span className="text-xs">Hej! Kul att se dig igen!</span>
+            <span className="text-xs">Ingen fara, jag hjälper dig!</span>
           </SpeechBubble>
           <div style={{ filter: 'drop-shadow(0 0 30px rgba(232,168,23,0.2))' }}>
             <UgglyOwlAnimated size={120} />
@@ -80,64 +78,66 @@ export default function LoginPage() {
         <div className="w-full max-w-sm space-y-8">
           <div className="text-center md:text-left">
             <h1 className="font-heading text-3xl font-bold text-night-900">
-              Logga in
+              Återställ lösenord
             </h1>
             <p className="text-night-400 mt-2">
-              Logga in för att se hur det går för din uggla
+              Ange din e-postadress så skickar vi en återställningslänk
             </p>
             <div className="gold-divider mt-4" />
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <Input
-              type="email"
-              label="E-post"
-              icon={Mail}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="din@email.se"
-              required
-            />
-            <Input
-              type="password"
-              label="Lösenord"
-              icon={Lock}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Ditt lösenord"
-              required
-              error={error || undefined}
-            />
-
-            <Button
-              type="submit"
-              loading={loading}
-              className="w-full"
-              size="lg"
-            >
-              {loading ? "Loggar in..." : "Logga in"}
-            </Button>
-          </form>
-
-          <div className="text-center space-y-2">
-            <p className="text-sm text-night-400">
+          {sent ? (
+            <div className="space-y-4">
+              <div className="bg-forest-50 border border-forest-400/30 rounded-xl p-4">
+                <p className="text-sm text-forest-600 font-medium">
+                  Vi har skickat en återställningslänk till {email}
+                </p>
+                <p className="text-xs text-forest-500 mt-1">
+                  Kolla din inkorg (och skräpposten) och klicka på länken.
+                </p>
+              </div>
               <Link
-                href="/forgot-password"
-                className="text-glow-700 hover:text-glow-500 font-semibold transition-colors"
+                href="/login"
+                className="flex items-center gap-2 text-sm text-glow-700 hover:text-glow-500 font-semibold transition-colors"
               >
-                Glömt lösenordet?
+                <ArrowLeft className="h-4 w-4" />
+                Tillbaka till inloggning
               </Link>
-            </p>
-            <p className="text-sm text-night-400">
-              Har du inget konto?{" "}
-              <Link
-                href="/signup"
-                className="text-glow-700 hover:text-glow-500 font-semibold transition-colors"
-              >
-                Skapa konto
-              </Link>
-            </p>
-          </div>
+            </div>
+          ) : (
+            <>
+              <form onSubmit={handleReset} className="space-y-4">
+                <Input
+                  type="email"
+                  label="E-post"
+                  icon={Mail}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="din@email.se"
+                  required
+                  error={error || undefined}
+                />
+
+                <Button
+                  type="submit"
+                  loading={loading}
+                  className="w-full"
+                  size="lg"
+                >
+                  {loading ? "Skickar..." : "Skicka återställningslänk"}
+                </Button>
+              </form>
+
+              <p className="text-center text-sm text-night-400">
+                <Link
+                  href="/login"
+                  className="text-glow-700 hover:text-glow-500 font-semibold transition-colors"
+                >
+                  Tillbaka till inloggning
+                </Link>
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>

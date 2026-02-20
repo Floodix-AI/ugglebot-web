@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { UgglyLogo } from "@/components/brand/UgglyLogo";
 import { UserMenu } from "@/components/UserMenu";
 import { DashboardNav } from "./DashboardNav";
+import { SubscriptionBanner } from "@/components/dashboard/SubscriptionBanner";
 
 export default async function DashboardLayout({
   children,
@@ -19,7 +20,7 @@ export default async function DashboardLayout({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("name")
+    .select("name, subscription_status")
     .eq("id", user.id)
     .single();
 
@@ -50,7 +51,10 @@ export default async function DashboardLayout({
           </div>
         </nav>
       </div>
-      <main className="max-w-6xl mx-auto px-6 py-8">{children}</main>
+      <main className="max-w-6xl mx-auto px-6 py-8">
+        <SubscriptionBanner status={profile?.subscription_status || "inactive"} />
+        {children}
+      </main>
     </div>
   );
 }

@@ -3,8 +3,7 @@
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import Link from "next/link";
-import { Mail, Lock } from "lucide-react";
+import { Lock, Check } from "lucide-react";
 import { UgglyLogo } from "@/components/brand/UgglyLogo";
 import { UgglyOwlAnimated } from "@/components/icons/UgglyOwlAnimated";
 import { NightSky } from "@/components/decorative/NightSky";
@@ -13,29 +12,40 @@ import { MoonIllustration } from "@/components/decorative/MoonIllustration";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
+export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
-  async function handleLogin(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    if (password.length < 6) {
+      setError("Lösenordet måste vara minst 6 tecken.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Lösenorden matchar inte.");
+      return;
+    }
+
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
+    const { error } = await supabase.auth.updateUser({
       password,
     });
 
     if (error) {
-      setError("Fel e-post eller lösenord");
+      setError("Kunde inte uppdatera lösenordet. Försök igen.");
       setLoading(false);
     } else {
-      router.push("/dashboard");
+      setSuccess(true);
+      setTimeout(() => router.push("/dashboard"), 2000);
     }
   }
 
@@ -50,7 +60,7 @@ export default function LoginPage() {
 
         <div className="relative z-10 flex flex-col items-center">
           <SpeechBubble direction="bottom" className="mb-3">
-            <span className="text-sm">Hej! Kul att se dig igen!</span>
+            <span className="text-sm">Välj ett nytt lösenord!</span>
           </SpeechBubble>
           <div style={{ filter: 'drop-shadow(0 0 40px rgba(232,168,23,0.25))' }}>
             <UgglyOwlAnimated size={180} />
@@ -67,7 +77,7 @@ export default function LoginPage() {
         <NightSky density="sparse" />
         <div className="relative z-10 flex flex-col items-center">
           <SpeechBubble direction="bottom" className="mb-2">
-            <span className="text-xs">Hej! Kul att se dig igen!</span>
+            <span className="text-xs">Välj ett nytt lösenord!</span>
           </SpeechBubble>
           <div style={{ filter: 'drop-shadow(0 0 30px rgba(232,168,23,0.2))' }}>
             <UgglyOwlAnimated size={120} />
@@ -80,64 +90,55 @@ export default function LoginPage() {
         <div className="w-full max-w-sm space-y-8">
           <div className="text-center md:text-left">
             <h1 className="font-heading text-3xl font-bold text-night-900">
-              Logga in
+              Nytt lösenord
             </h1>
             <p className="text-night-400 mt-2">
-              Logga in för att se hur det går för din uggla
+              Ange ditt nya lösenord nedan
             </p>
             <div className="gold-divider mt-4" />
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <Input
-              type="email"
-              label="E-post"
-              icon={Mail}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="din@email.se"
-              required
-            />
-            <Input
-              type="password"
-              label="Lösenord"
-              icon={Lock}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Ditt lösenord"
-              required
-              error={error || undefined}
-            />
+          {success ? (
+            <div className="bg-forest-50 border border-forest-400/30 rounded-xl p-4">
+              <p className="text-sm text-forest-600 font-medium flex items-center gap-2">
+                <Check className="h-4 w-4" />
+                Lösenordet uppdaterat! Skickar dig till dashboarden...
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <Input
+                type="password"
+                label="Nytt lösenord"
+                icon={Lock}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Minst 6 tecken"
+                required
+                minLength={6}
+              />
 
-            <Button
-              type="submit"
-              loading={loading}
-              className="w-full"
-              size="lg"
-            >
-              {loading ? "Loggar in..." : "Logga in"}
-            </Button>
-          </form>
+              <Input
+                type="password"
+                label="Bekräfta lösenord"
+                icon={Lock}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Skriv lösenordet igen"
+                required
+                error={error || undefined}
+              />
 
-          <div className="text-center space-y-2">
-            <p className="text-sm text-night-400">
-              <Link
-                href="/forgot-password"
-                className="text-glow-700 hover:text-glow-500 font-semibold transition-colors"
+              <Button
+                type="submit"
+                loading={loading}
+                className="w-full"
+                size="lg"
               >
-                Glömt lösenordet?
-              </Link>
-            </p>
-            <p className="text-sm text-night-400">
-              Har du inget konto?{" "}
-              <Link
-                href="/signup"
-                className="text-glow-700 hover:text-glow-500 font-semibold transition-colors"
-              >
-                Skapa konto
-              </Link>
-            </p>
-          </div>
+                {loading ? "Sparar..." : "Spara nytt lösenord"}
+              </Button>
+            </form>
+          )}
         </div>
       </div>
     </div>

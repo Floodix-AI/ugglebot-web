@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { pairingSchema } from "@/lib/validations";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -11,11 +12,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Ej inloggad" }, { status: 401 });
   }
 
-  const { pairing_code, device_name } = await request.json();
-
-  if (!pairing_code) {
-    return NextResponse.json({ error: "Ange en parkopplingskod" }, { status: 400 });
+  const raw = await request.json();
+  const parsed = pairingSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message || "Ogiltig data" },
+      { status: 400 }
+    );
   }
+  const { pairing_code, device_name } = parsed.data;
 
   // Använd admin-klient för att bypassa RLS (oparkopplade enheter har ingen ägare)
   const admin = createAdminClient();
@@ -43,20 +48,25 @@ export async function POST(request: Request) {
       { onConflict: "id" }
     );
 
-  // Parkoppla enheten till användaren
-  const { error: updateError } = await admin
+  // Parkoppla enheten till användaren — atomär guard mot race condition
+  const { data: updated, error: updateError } = await admin
     .from("devices")
     .update({
       owner_id: user.id,
       device_name: device_name || "Min Uggly",
       paired_at: new Date().toISOString(),
     })
-    .eq("id", device.id);
+    .eq("id", device.id)
+    .is("owner_id", null)
+    .select("id")
+    .single();
 
-  if (updateError) {
-    console.error("Pairing error:", updateError);
-    return NextResponse.json({ error: "Kunde inte parkoppla din Uggly" }, { status: 500 });
+  if (updateError || !updated) {
+    return NextResponse.json(
+      { error: "Denna Uggly har redan parkopplats till ett annat konto" },
+      { status: 409 }
+    );
   }
 
-  return NextResponse.json({ device_id: device.id });
+  return NextResponse.json({ device_id: updated.id });
 }

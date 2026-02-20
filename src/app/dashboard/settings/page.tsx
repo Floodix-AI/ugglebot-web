@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, Check, Trash2 } from "lucide-react";
+import { Mail, Lock, Check, Trash2, Download } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -106,13 +106,30 @@ export default function SettingsPage() {
     setTimeout(() => setPasswordSaved(false), 3000);
   }
 
+  const [deleteError, setDeleteError] = useState("");
+
   async function handleDeleteAccount() {
     if (!confirmDelete) {
       setConfirmDelete(true);
       return;
     }
     setDeleting(true);
-    await fetch("/api/account", { method: "DELETE" });
+    setDeleteError("");
+
+    try {
+      const res = await fetch("/api/account", { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        setDeleteError(data.error || "Något gick fel vid borttagning.");
+        setDeleting(false);
+        return;
+      }
+    } catch {
+      setDeleteError("Kunde inte nå servern. Försök igen.");
+      setDeleting(false);
+      return;
+    }
+
     await supabase.auth.signOut();
     router.push("/login");
   }
@@ -211,6 +228,26 @@ export default function SettingsPage() {
         </form>
       </Card>
 
+      {/* GDPR Export */}
+      <Card padding="lg">
+        <h2 className="font-heading text-lg font-bold text-night-900 mb-2">
+          Exportera mina uppgifter
+        </h2>
+        <p className="text-sm text-night-400 mb-4">
+          Ladda ner all data kopplad till ditt konto (GDPR).
+        </p>
+        <Button
+          variant="secondary"
+          size="sm"
+          icon={Download}
+          onClick={() => {
+            window.location.href = "/api/account/export";
+          }}
+        >
+          Exportera data
+        </Button>
+      </Card>
+
       {/* Delete account */}
       <Card padding="lg">
         <h2 className="font-heading text-lg font-bold text-night-900 mb-2">
@@ -240,6 +277,9 @@ export default function SettingsPage() {
           >
             Avbryt
           </button>
+        )}
+        {deleteError && (
+          <p className="text-sm text-red-600 mt-3">{deleteError}</p>
         )}
       </Card>
     </div>

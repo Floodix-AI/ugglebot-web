@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { usageSchema } from "@/lib/validations";
 import { NextResponse } from "next/server";
 
 // Pi:n skickar usage-data efter varje interaktion
@@ -28,7 +29,15 @@ export async function POST(
     return NextResponse.json({ error: "Invalid API key" }, { status: 403 });
   }
 
-  const body = await request.json();
+  const raw = await request.json();
+  const parsed = usageSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Ogiltig data", details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
+  }
+  const body = parsed.data;
   const today = body.date || new Date().toISOString().split("T")[0];
 
   // Hämta befintlig rad för idag
@@ -44,8 +53,8 @@ export async function POST(
     await admin
       .from("usage_logs")
       .update({
-        total_sek: body.total_sek || existing.total_sek,
-        interactions: existing.interactions + (body.interactions || 1),
+        total_sek: body.total_sek ?? existing.total_sek,
+        interactions: existing.interactions + (body.interactions ?? 1),
       })
       .eq("id", existing.id);
   } else {
@@ -54,8 +63,8 @@ export async function POST(
       .insert({
         device_id: deviceId,
         date: today,
-        total_sek: body.total_sek || 0,
-        interactions: body.interactions || 1,
+        total_sek: body.total_sek ?? 0,
+        interactions: body.interactions ?? 1,
       });
   }
 

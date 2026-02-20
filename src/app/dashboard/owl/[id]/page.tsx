@@ -10,6 +10,9 @@ import {
   PenLine,
   User,
   Volume2,
+  Unlink,
+  RefreshCw,
+  Copy,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge } from "@/components/ui/Badge";
@@ -20,6 +23,7 @@ import { Select } from "@/components/ui/Select";
 import { Slider } from "@/components/ui/Slider";
 import { UgglyOwl } from "@/components/icons/UgglyOwl";
 import { UgglyOwlAnimated } from "@/components/icons/UgglyOwlAnimated";
+import { useToast } from "@/lib/toast-context";
 
 interface DeviceSettings {
   child_name: string;
@@ -60,6 +64,7 @@ export default function OwlSettingsPage() {
   const params = useParams();
   const router = useRouter();
   const supabase = createClient();
+  const toast = useToast();
   const deviceId = params.id as string;
 
   const [device, setDevice] = useState<Device | null>(null);
@@ -68,6 +73,10 @@ export default function OwlSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [confirmUnpair, setConfirmUnpair] = useState(false);
+  const [unpairing, setUnpairing] = useState(false);
+  const [rotatingKey, setRotatingKey] = useState(false);
+  const [newApiKey, setNewApiKey] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -123,7 +132,7 @@ export default function OwlSettingsPage() {
     setSaving(true);
     setSaved(false);
 
-    await supabase
+    const { error } = await supabase
       .from("device_settings")
       .update({
         ...settings,
@@ -132,15 +141,66 @@ export default function OwlSettingsPage() {
       .eq("device_id", deviceId);
 
     setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    if (error) {
+      toast.error("Kunde inte spara inställningarna. Försök igen.");
+    } else {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    }
   }
 
   async function handleDeviceNameSave(newName: string) {
-    await supabase
+    const { error } = await supabase
       .from("devices")
       .update({ device_name: newName })
       .eq("id", deviceId);
+
+    if (error) {
+      toast.error("Kunde inte spara enhetsnamnet.");
+    }
+  }
+
+  async function handleUnpair() {
+    if (!confirmUnpair) {
+      setConfirmUnpair(true);
+      return;
+    }
+    setUnpairing(true);
+    try {
+      const res = await fetch(`/api/devices/${deviceId}/unpair`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        toast.error("Kunde inte avkoppla enheten.");
+        setUnpairing(false);
+        return;
+      }
+      toast.success("Enheten har avkopplats.");
+      router.push("/dashboard");
+    } catch {
+      toast.error("Något gick fel. Försök igen.");
+      setUnpairing(false);
+    }
+  }
+
+  async function handleRotateKey() {
+    setRotatingKey(true);
+    try {
+      const res = await fetch(`/api/devices/${deviceId}/rotate-key`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        toast.error("Kunde inte rotera API-nyckeln.");
+        setRotatingKey(false);
+        return;
+      }
+      const data = await res.json();
+      setNewApiKey(data.api_key);
+      toast.success("API-nyckeln har roterats.");
+    } catch {
+      toast.error("Något gick fel. Försök igen.");
+    }
+    setRotatingKey(false);
   }
 
   if (loading) {
@@ -385,6 +445,76 @@ export default function OwlSettingsPage() {
               Senast online:{" "}
               {new Date(device.last_seen_at).toLocaleString("sv-SE")}
             </p>
+          )}
+        </div>
+
+        <div className="gold-divider mt-4 mb-4" />
+
+        <div className="flex items-center gap-3">
+          <Button
+            variant="secondary"
+            size="sm"
+            icon={RefreshCw}
+            loading={rotatingKey}
+            onClick={handleRotateKey}
+          >
+            Rotera API-nyckel
+          </Button>
+        </div>
+
+        {newApiKey && (
+          <div className="mt-3 bg-glow-50 border border-glow-400/30 rounded-xl p-3">
+            <p className="text-xs text-glow-700 font-medium mb-1">
+              Ny API-nyckel (visas bara en gång):
+            </p>
+            <div className="flex items-center gap-2">
+              <code className="text-xs font-mono bg-white px-2 py-1 rounded border border-glow-200 text-night-700 flex-1 break-all">
+                {newApiKey}
+              </code>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(newApiKey);
+                  toast.success("API-nyckel kopierad!");
+                }}
+                className="text-glow-600 hover:text-glow-500 transition-colors"
+              >
+                <Copy className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {/* Danger Zone */}
+      <Card padding="md">
+        <h2 className="font-heading text-lg font-bold text-night-900 mb-2">
+          Avkoppla Uggly
+        </h2>
+        <p className="text-sm text-night-400 mb-4">
+          Avkopplar enheten från ditt konto. All användningsdata raderas.
+          Enheten kan parkopplas igen med sin kod.
+        </p>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="danger"
+            size="sm"
+            icon={Unlink}
+            loading={unpairing}
+            onClick={handleUnpair}
+          >
+            {unpairing
+              ? "Avkopplar..."
+              : confirmUnpair
+                ? "Tryck igen för att bekräfta"
+                : "Avkoppla Uggly"}
+          </Button>
+          {confirmUnpair && !unpairing && (
+            <button
+              onClick={() => setConfirmUnpair(false)}
+              className="text-sm text-night-400 hover:text-night-600 transition-colors"
+            >
+              Avbryt
+            </button>
           )}
         </div>
       </Card>

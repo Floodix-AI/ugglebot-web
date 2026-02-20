@@ -27,23 +27,38 @@ export async function POST(request: Request) {
       const customerId = subscription.customer as string;
       const status = mapStatus(subscription.status);
 
-      await admin
+      const { error: statusError } = await admin
         .from("profiles")
         .update({ subscription_status: status })
         .eq("stripe_customer_id", customerId);
 
+      if (statusError) {
+        console.error("Webhook: failed to update subscription_status:", statusError);
+        return NextResponse.json({ error: "DB update failed" }, { status: 500 });
+      }
+
       // Aktivera/inaktivera ugglor baserat på prenumerationsstatus
-      const { data: profile } = await admin
+      const { data: profile, error: profileError } = await admin
         .from("profiles")
         .select("id")
         .eq("stripe_customer_id", customerId)
         .single();
 
+      if (profileError) {
+        console.error("Webhook: failed to find profile:", profileError);
+        return NextResponse.json({ error: "Profile lookup failed" }, { status: 500 });
+      }
+
       if (profile) {
-        await admin
+        const { error: deviceError } = await admin
           .from("devices")
           .update({ is_active: status === "active" })
           .eq("owner_id", profile.id);
+
+        if (deviceError) {
+          console.error("Webhook: failed to update devices:", deviceError);
+          return NextResponse.json({ error: "Device update failed" }, { status: 500 });
+        }
       }
       break;
     }
@@ -52,23 +67,38 @@ export async function POST(request: Request) {
       const subscription = event.data.object;
       const customerId = subscription.customer as string;
 
-      await admin
+      const { error: statusError } = await admin
         .from("profiles")
         .update({ subscription_status: "canceled" })
         .eq("stripe_customer_id", customerId);
 
+      if (statusError) {
+        console.error("Webhook: failed to set canceled status:", statusError);
+        return NextResponse.json({ error: "DB update failed" }, { status: 500 });
+      }
+
       // Inaktivera alla ugglor
-      const { data: profile } = await admin
+      const { data: profile, error: profileError } = await admin
         .from("profiles")
         .select("id")
         .eq("stripe_customer_id", customerId)
         .single();
 
+      if (profileError) {
+        console.error("Webhook: failed to find profile:", profileError);
+        return NextResponse.json({ error: "Profile lookup failed" }, { status: 500 });
+      }
+
       if (profile) {
-        await admin
+        const { error: deviceError } = await admin
           .from("devices")
           .update({ is_active: false })
           .eq("owner_id", profile.id);
+
+        if (deviceError) {
+          console.error("Webhook: failed to deactivate devices:", deviceError);
+          return NextResponse.json({ error: "Device update failed" }, { status: 500 });
+        }
       }
       break;
     }
