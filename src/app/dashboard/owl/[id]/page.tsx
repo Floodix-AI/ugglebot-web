@@ -13,6 +13,7 @@ import {
   Unlink,
   RefreshCw,
   Copy,
+  Wifi,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge } from "@/components/ui/Badge";
@@ -77,6 +78,8 @@ export default function OwlSettingsPage() {
   const [unpairing, setUnpairing] = useState(false);
   const [rotatingKey, setRotatingKey] = useState(false);
   const [newApiKey, setNewApiKey] = useState<string | null>(null);
+  const [requestingWifiSetup, setRequestingWifiSetup] = useState(false);
+  const [wifiSetupRequested, setWifiSetupRequested] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -181,6 +184,25 @@ export default function OwlSettingsPage() {
       toast.error("Något gick fel. Försök igen.");
       setUnpairing(false);
     }
+  }
+
+  async function handleWifiSetup() {
+    setRequestingWifiSetup(true);
+    try {
+      const res = await fetch(`/api/devices/${deviceId}/wifi-setup`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        toast.error("Kunde inte starta WiFi-setup.");
+        setRequestingWifiSetup(false);
+        return;
+      }
+      setWifiSetupRequested(true);
+      toast.success("WiFi-setup begärd! Uggly går in i setup-läge.");
+    } catch {
+      toast.error("Något gick fel. Försök igen.");
+    }
+    setRequestingWifiSetup(false);
   }
 
   async function handleRotateKey() {
@@ -481,6 +503,48 @@ export default function OwlSettingsPage() {
                 <Copy className="h-4 w-4" />
               </button>
             </div>
+          </div>
+        )}
+      </Card>
+
+      {/* WiFi */}
+      <Card padding="md">
+        <div className="flex items-center gap-2 mb-4">
+          <Wifi className="h-5 w-5 text-night-400" />
+          <h2 className="font-heading text-lg font-bold text-night-900">
+            WiFi
+          </h2>
+        </div>
+
+        {wifiSetupRequested ? (
+          <div className="space-y-3">
+            <div className="bg-glow-50 border border-glow-400/30 rounded-xl p-4">
+              <p className="text-sm font-semibold text-glow-700 mb-2">
+                WiFi-setup begärd!
+              </p>
+              <p className="text-sm text-night-500">
+                Nästa gång din Uggly startar om eller hämtar inställningar går
+                den in i setup-läge. Anslut din telefon till Ugglys
+                WiFi-nätverk och följ instruktionerna.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm text-night-400">
+              Byt WiFi-nätverk om du har flyttat eller bytt router.
+              Uggly skapar ett eget WiFi-nätverk som du ansluter till med
+              din telefon.
+            </p>
+            <Button
+              variant="secondary"
+              size="sm"
+              icon={Wifi}
+              loading={requestingWifiSetup}
+              onClick={handleWifiSetup}
+            >
+              Byt WiFi-nätverk
+            </Button>
           </div>
         )}
       </Card>
