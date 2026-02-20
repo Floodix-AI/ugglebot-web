@@ -1,9 +1,8 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 
-// Pi:n skickar daglig usage-data via API-nyckel.
-// Header: Authorization: Bearer <device_api_key>
-// Body: { date, whisper_cost, claude_cost, elevenlabs_cost, total_sek, interactions }
+// Pi:n skickar usage-data efter varje interaktion
+// Body: { date, total_sek, interactions }
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -19,45 +18,52 @@ export async function POST(
   const admin = createAdminClient();
 
   // Verifiera API-nyckel
-  const { data: device, error: deviceError } = await admin
+  const { data: device } = await admin
     .from("devices")
-    .select("id, api_key, is_active")
+    .select("id, api_key")
     .eq("id", deviceId)
     .single();
 
-  if (deviceError || !device || device.api_key !== apiKey) {
+  if (!device || device.api_key !== apiKey) {
     return NextResponse.json({ error: "Invalid API key" }, { status: 403 });
   }
 
   const body = await request.json();
-  const { date, whisper_cost, claude_cost, elevenlabs_cost, total_sek, interactions } = body;
+  const today = body.date || new Date().toISOString().split("T")[0];
 
-  if (!date) {
-    return NextResponse.json({ error: "Missing date" }, { status: 400 });
-  }
-
-  // Upsert — uppdatera om det redan finns en rad för denna dag
-  const { error: upsertError } = await admin
+  // Hämta befintlig rad för idag
+  const { data: existing } = await admin
     .from("usage_logs")
-    .upsert(
-      {
-        device_id: deviceId,
-        date,
-        whisper_cost: whisper_cost || 0,
-        claude_cost: claude_cost || 0,
-        elevenlabs_cost: elevenlabs_cost || 0,
-        total_sek: total_sek || 0,
-        interactions: interactions || 0,
-      },
-      { onConflict: "device_id,date" }
-    );
+    .select("id, total_sek, interactions")
+    .eq("device_id", deviceId)
+    .eq("date", today)
+    .single();
 
-  if (upsertError) {
-    return NextResponse.json(
-      { error: "Kunde inte spara usage-data" },
-      { status: 500 }
-    );
+  if (existing) {
+    // Pi skickar sin dagstotal — uppdatera, inkrementera interactions
+    await admin
+      .from("usage_logs")
+      .update({
+        total_sek: body.total_sek || existing.total_sek,
+        interactions: existing.interactions + (body.interactions || 1),
+      })
+      .eq("id", existing.id);
+  } else {
+    await admin
+      .from("usage_logs")
+      .insert({
+        device_id: deviceId,
+        date: today,
+        total_sek: body.total_sek || 0,
+        interactions: body.interactions || 1,
+      });
   }
+
+  // Uppdatera last_seen_at
+  await admin
+    .from("devices")
+    .update({ last_seen_at: new Date().toISOString() })
+    .eq("id", deviceId);
 
   return NextResponse.json({ ok: true });
 }
